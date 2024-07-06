@@ -34,8 +34,9 @@ PACKED_STRUCT_BEGIN BitmapInfoHeader{
 PACKED_STRUCT_END
 
 // функция вычисления отступа по ширине
-static int GetBMPStride(int w) {
-    return 4 * ((w * 3 + 3) / 4);
+static int GetBMPStride(int image_width) {
+    const int COLORS_IN_PIXEL = 3;
+    return 4 * ((image_width * COLORS_IN_PIXEL + 3) / 4);
 }
 
 // напишите эту функцию
@@ -85,18 +86,19 @@ Image LoadBMP(const Path& file) {
      
     std::ifstream in(file, std::ios::binary);
 
-    if (!in.is_open()) {
-        return {};
-    }
+    if (!in.is_open()) { return {}; }
 
     in.read((char*)&file_header, sizeof(file_header));
     if (file_header.B != 'B' || file_header.M != 'M' || file_header.reserved != 0 || file_header.stride != 54) {
         return {};
     }
 
+    if (!in.is_open()) { return {}; }
+
     in.read((char*)&info_header, sizeof(info_header));
 
-    
+    if (!in.is_open()) { return {}; }
+
     int padding = GetBMPStride(info_header.width);
 
     Image result(info_header.width, info_header.height, Color::Black());
